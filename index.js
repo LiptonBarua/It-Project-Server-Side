@@ -34,8 +34,10 @@ async function run() {
 
 
     const usersCollection = client.db('itSolutionsData').collection('users')
-    const informationCollection = client.db('itSolutionsData').collection('personalInformation')
+    const personalInformationCollection = client.db('itSolutionsData').collection('personalInformation')
     const licenseMemberCollection = client.db('itSolutionsData').collection('licenseMember')
+    const informationCollection = client.db('itSolutionsData').collection('information')
+    const addressCollection = client.db('itSolutionsData').collection('address')
 
 
     // ................User Collection.................
@@ -56,12 +58,12 @@ async function run() {
     app.put('/profile', async (req, res) => {
       const userProfile = req.query.email;
       const file = req.body;
-      const { firstName, lastName, email, phone, image, location } = file;
+      const { firstName, lastName, email, image, location } = file;
       const filter = { email: userProfile };
       const option = { upsert: true };
       const updatedDoc = {
         $set: {
-          firstName, lastName, email, phone, image, location
+          firstName, lastName, email, image, location
         }
       }
 
@@ -84,16 +86,16 @@ async function run() {
 
     // ...................Personal Information.............
 
-    app.post('/information', async (req, res) => {
+    app.post('/personalInformation', async (req, res) => {
       const query = req.body;
-      const result = await informationCollection.insertOne(query)
+      const result = await personalInformationCollection.insertOne(query)
       res.send(result)
     })
 
 
-    app.get('/information', async (req, res) => {
+    app.get('/personalInformation', async (req, res) => {
       const query = {};
-      const result = await informationCollection.find(query).toArray();
+      const result = await personalInformationCollection.find(query).toArray();
       res.send(result)
     })
 
@@ -109,6 +111,36 @@ async function run() {
     app.get('/licensemember', async (req, res) => {
       const query = {};
       const result = await licenseMemberCollection.find(query).toArray();
+      res.send(result)
+    })
+
+
+    // ....................Personal Information.............
+
+    app.post('/information', async(req, res)=>{
+      const query=req.body;
+      const result = await informationCollection.insertOne(query)
+      res.send(result)
+    })
+
+    app.get('/information', async(req, res)=>{
+      const query={}
+      const result =await informationCollection.find(query).toArray();
+      res.send(result)
+    })
+
+
+    // .......................Address.............
+
+    app.post('/address', async(req, res)=>{
+      const query=req.body;
+      const result=await addressCollection.insertOne(query)
+      res.send(result)
+    })
+
+    app.get('/address', async(req, res)=>{
+      const query={};
+      const result=await addressCollection.find(query).toArray()
       res.send(result)
     })
   } finally {
