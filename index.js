@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -28,6 +28,8 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+
 
 async function run() {
   try {
@@ -58,12 +60,12 @@ async function run() {
     app.put('/profile', async (req, res) => {
       const userProfile = req.query.email;
       const file = req.body;
-      const { firstName, lastName, email, image, location } = file;
+      const { firstName, lastName, email, image, location, phone } = file;
       const filter = { email: userProfile };
       const option = { upsert: true };
       const updatedDoc = {
         $set: {
-          firstName, lastName, email, image, location
+          firstName, lastName, email, image, location, phone
         }
       }
 
@@ -99,10 +101,16 @@ async function run() {
       res.send(result)
     })
 
+    app.delete('/personalInformation/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id:new ObjectId(id) };
+      const result = await personalInformationCollection.deleteOne(query);
+      res.send(result);
+    })
 
     //  ....................Personal License Members.....................
 
-    app.post('/licensemember', async (req, res) => {
+    app.post('/licensemember', async(req, res) => {
       const query = req.body;
       const result = await licenseMemberCollection.insertOne(query)
       res.send(result)
@@ -114,34 +122,51 @@ async function run() {
       res.send(result)
     })
 
+ 
+
+app.delete('/licensemember/:id', async (req, res) => {
+
+    const id = req.params.id;
+    const query = { _id:new ObjectId(id) };
+    const result = await licenseMemberCollection.deleteOne(query);
+    res.send(result);
+  
+});
 
     // ....................Personal Information.............
 
-    app.post('/information', async(req, res)=>{
-      const query=req.body;
+    app.post('/information', async (req, res) => {
+      const query = req.body;
       const result = await informationCollection.insertOne(query)
       res.send(result)
     })
 
-    app.get('/information', async(req, res)=>{
-      const query={}
-      const result =await informationCollection.find(query).toArray();
+    app.get('/information', async (req, res) => {
+      const query = {}
+      const result = await informationCollection.find(query).toArray();
       res.send(result)
     })
 
 
     // .......................Address.............
 
-    app.post('/address', async(req, res)=>{
-      const query=req.body;
-      const result=await addressCollection.insertOne(query)
+    app.post('/address', async (req, res) => {
+      const query = req.body;
+      const result = await addressCollection.insertOne(query)
       res.send(result)
     })
 
-    app.get('/address', async(req, res)=>{
-      const query={};
-      const result=await addressCollection.find(query).toArray()
+    app.get('/address', async (req, res) => {
+      const query = {};
+      const result = await addressCollection.find(query).toArray()
       res.send(result)
+    })
+
+    app.delete('/address/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id:new ObjectId(id) };
+      const result = await addressCollection.deleteOne(query);
+      res.send(result);
     })
   } finally {
 
